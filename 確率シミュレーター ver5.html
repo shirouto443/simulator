@@ -1,0 +1,1766 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+
+<meta charset="UTF-8">
+
+<meta
+name="viewport"
+content="width=device-width,initial-scale=1.0">
+
+<title>
+
+確率シミュレーター Ver5
+
+</title>
+
+<style>
+
+*{
+    margin:0;
+    padding:0;
+    box-sizing:border-box;
+}
+
+html,
+body{
+
+    width:100%;
+    height:100%;
+
+    font-family:
+    "Yu Gothic",
+    sans-serif;
+
+    background:#f5f5f5;
+
+}
+
+.screen{
+
+    display:none;
+
+    width:100vw;
+    height:100vh;
+
+    overflow:auto;
+
+}
+
+.active{
+
+    display:block;
+
+}
+
+/* =====================
+ホーム
+===================== */
+
+#home{
+
+    background:#f5f5f5;
+
+}
+
+.header{
+
+    height:60px;
+
+    background:#1565c0;
+
+    color:white;
+
+    display:flex;
+
+    justify-content:center;
+    align-items:center;
+
+    font-size:24px;
+    font-weight:bold;
+
+}
+
+.menu{
+
+    padding:15px;
+
+    display:grid;
+
+    gap:10px;
+
+}
+
+.menu button{
+
+    height:70px;
+
+    border:none;
+
+    border-radius:10px;
+
+    background:white;
+
+    font-size:20px;
+
+    box-shadow:
+    0 2px 8px rgba(0,0,0,.15);
+
+}
+
+/* =====================
+シミュレーター共通
+===================== */
+
+.sim-header{
+
+    height:60px;
+
+    display:flex;
+
+    align-items:center;
+
+    background:#1565c0;
+
+    color:white;
+
+}
+
+.back{
+
+    width:60px;
+
+    border:none;
+
+    background:none;
+
+    color:white;
+
+    font-size:20px;
+
+}
+
+.title{
+
+    flex:1;
+
+    text-align:center;
+
+    font-size:22px;
+
+    font-weight:bold;
+
+}
+
+.content{
+
+    padding:15px;
+
+}
+
+.anim{
+
+    height:100px;
+
+    display:flex;
+
+    justify-content:center;
+    align-items:center;
+
+    font-size:70px;
+
+}
+
+.result{
+
+    text-align:center;
+
+    font-size:40px;
+
+    font-weight:bold;
+
+    margin:10px 0;
+
+}
+
+.main-button{
+
+    width:100%;
+
+    padding:15px;
+
+    border:none;
+
+    border-radius:10px;
+
+    background:#2196f3;
+
+    color:white;
+
+    font-size:18px;
+
+}
+
+.batch{
+
+    margin-top:10px;
+
+    display:grid;
+
+    grid-template-columns:
+    repeat(4,1fr);
+
+    gap:5px;
+
+}
+
+.batch button{
+
+    padding:10px;
+
+}
+
+.stats{
+
+    margin-top:10px;
+
+    display:grid;
+
+    grid-template-columns:
+    repeat(2,1fr);
+
+    gap:5px;
+
+}
+
+.stat{
+
+    padding:10px;
+
+    background:white;
+
+    border-radius:6px;
+
+    text-align:center;
+
+    border:
+    solid 1px #ddd;
+
+}
+
+/* =====================
+タブ
+===================== */
+
+.tabs{
+
+    margin-top:15px;
+
+    display:grid;
+
+    grid-template-columns:
+    repeat(3,1fr);
+
+}
+
+.tabs button{
+
+    padding:12px;
+
+    border:none;
+
+    background:#eeeeee;
+
+}
+
+.tabs button.active{
+
+    background:#bbdefb;
+
+}
+
+.panel{
+
+    display:none;
+
+    background:white;
+
+    margin-top:5px;
+
+    padding:10px;
+
+}
+
+.panel.active{
+
+    display:block;
+
+}
+
+canvas{
+
+    width:100%;
+
+    max-width:100%;
+
+    border:
+    solid 1px #ddd;
+
+}
+
+table{
+
+    width:100%;
+
+    border-collapse:collapse;
+
+}
+
+th,
+td{
+
+    border:
+    solid 1px #ddd;
+
+    padding:5px;
+
+    text-align:center;
+
+}
+
+.history{
+
+    max-height:400px;
+
+    overflow:auto;
+
+}
+
+/* =====================
+ガチャ演出
+===================== */
+
+.r{
+
+    color:black;
+
+}
+
+.sr{
+
+    color:#2196f3;
+
+    font-weight:bold;
+
+}
+
+.ssr{
+
+    color:gold;
+
+    font-weight:bold;
+
+    text-shadow:
+    0 0 5px gold,
+    0 0 10px yellow,
+    0 0 20px gold;
+
+}
+
+.coin-spin{
+
+    animation:
+    coinSpin 0.15s linear infinite;
+
+}
+
+@keyframes coinSpin{
+
+    0%{
+
+        transform:
+        rotateY(0deg);
+
+    }
+
+    100%{
+
+        transform:
+        rotateY(360deg);
+
+    }
+
+}
+
+</style>
+
+</head>
+
+<body>
+
+<!-- ホーム -->
+
+<div
+id="home"
+class="screen active">
+
+<div class="header">
+
+確率シミュレーター Ver5
+<br>
+<span style="font-size:12px;">
+　　　　Created by 素人工作
+</span>
+
+</div>
+
+<div class="menu">
+
+<button onclick="openScreen('coin')">
+🪙 コイントス
+</button>
+
+<button onclick="openScreen('dice')">
+🎲 サイコロ
+</button>
+
+<button onclick="openScreen('roulette')">
+🎡 ルーレット（工事中）
+</button>
+
+<button onclick="openScreen('gacha')">
+🎁 ガチャ（工事中）
+</button>
+
+</div>
+
+</div>
+
+<!-- コイントス -->
+
+<div
+id="coin"
+class="screen">
+
+<div class="sim-header">
+
+<button
+class="back"
+onclick="goHome()">
+←
+</button>
+
+<div class="title">
+
+コイントス
+
+</div>
+
+</div>
+
+<div class="content">
+
+<div
+id="coinAnim"
+class="anim">
+
+🪙
+
+</div>
+
+<div
+id="coinResult"
+class="result">
+
+-
+
+</div>
+
+<button
+class="main-button"
+onclick="coinMulti(1)">
+
+投げる
+
+</button>
+<button
+onclick="resetCoin()">
+
+リセット
+
+</button>
+
+<div class="batch">
+
+<button onclick="coinMulti(10)">10</button>
+<button onclick="coinMulti(100)">100</button>
+<button onclick="coinMulti(1000)">1000</button>
+<button onclick="exportCoinCSV()">CSV</button>
+
+</div>
+
+<div
+id="coinStats"
+class="stats">
+</div>
+
+<div class="tabs">
+
+<button
+onclick="showCoinPanel('graph')">
+
+円グラフ
+
+</button>
+
+<button
+onclick="showCoinPanel('conv')">
+
+収束
+
+</button>
+
+<button
+onclick="showCoinPanel('history')">
+
+履歴
+
+</button>
+
+</div>
+
+<div
+id="coinGraph"
+class="panel active">
+
+<canvas
+id="coinChart"
+width="600"
+height="300"></canvas>
+
+</div>
+
+<div
+id="coinConv"
+class="panel">
+
+<canvas
+id="coinConvChart"
+width="600"
+height="300"></canvas>
+
+</div>
+
+<div
+id="coinHistory"
+class="panel">
+
+<div
+id="coinHistoryArea"
+class="history">
+</div>
+
+</div>
+
+</div>
+
+</div>
+
+<!-- サイコロ -->
+
+<div
+id="dice"
+class="screen">
+
+<div class="sim-header">
+
+<button
+class="back"
+onclick="goHome()">
+←
+</button>
+
+<div class="title">
+
+サイコロ
+
+</div>
+
+</div>
+
+<div class="content">
+
+<div
+id="diceAnim"
+class="anim">
+
+<img
+id="diceImg"
+src="dice1.png"
+width="120">
+
+</div>
+<div
+id="diceResult"
+class="result">
+
+-
+
+</div>
+
+<button
+class="main-button"
+onclick="diceMulti(1)">
+
+振る
+
+</button>
+
+<button
+onclick="resetDice()">
+
+リセット
+
+</button>
+
+<div class="batch">
+
+<button onclick="diceMulti(10)">10</button>
+<button onclick="diceMulti(100)">100</button>
+<button onclick="diceMulti(1000)">1000</button>
+
+</div>
+
+<div
+id="diceStats"
+class="stats">
+</div>
+
+<div
+id="diceGraphArea">
+
+<canvas
+id="diceChart"
+width="600"
+height="300">
+</canvas>
+
+</div>
+
+<div
+id="diceHistoryArea"
+class="history">
+</div>
+
+</div>
+
+</div>
+
+<!-- ルーレット -->
+
+<div
+id="roulette"
+class="screen">
+
+<div class="sim-header">
+
+<button
+class="back"
+onclick="goHome()">
+←
+</button>
+
+<div class="title">
+
+ルーレット（工事中）
+
+</div>
+
+</div>
+
+<div class="content">
+
+<div
+id="rouletteAnim"
+class="anim">
+
+🎡
+
+</div>
+
+<div
+id="rouletteResult"
+class="result">
+
+-
+
+</div>
+
+<button
+class="main-button"
+onclick="spinRoulette()">
+
+回す
+
+</button>
+<button
+onclick="resetRoulette()">
+
+履歴リセット
+
+</button>
+
+<div
+id="rouletteHistory"
+class="history">
+</div>
+
+</div>
+
+</div>
+
+<!-- ガチャ -->
+
+<div
+id="gacha"
+class="screen">
+
+<div class="sim-header">
+
+<button
+class="back"
+onclick="goHome()">
+←
+</button>
+
+<div class="title">
+
+ガチャ（工事中）
+
+</div>
+
+</div>
+
+<div class="content">
+
+<div
+id="gachaAnim"
+class="anim">
+
+🎁
+
+</div>
+
+<div
+id="gachaResult"
+class="result">
+
+-
+
+</div>
+
+<button
+class="main-button"
+onclick="gachaDraw()">
+
+ガチャを引く
+
+</button>
+<button
+onclick="resetGacha()">
+
+履歴リセット
+
+</button>
+<div
+id="gachaHistory"
+class="history">
+</div>
+
+</div>
+
+</div>
+
+<script>
+
+// ========================================
+// データ
+// ========================================
+
+let coinResults = [];
+let diceResults = [];
+let rouletteResults = [];
+let gachaResults = [];
+
+// ========================================
+// 画面切替
+// ========================================
+
+function hideAllScreens(){
+
+    document
+    .querySelectorAll(".screen")
+    .forEach(screen=>{
+
+        screen.classList.remove(
+            "active"
+        );
+
+    });
+
+}
+
+function openScreen(id){
+
+    hideAllScreens();
+
+    document
+    .getElementById(id)
+    .classList.add(
+        "active"
+    );
+
+}
+
+function goHome(){
+
+    openScreen("home");
+
+}
+
+// ========================================
+// コイントスタブ
+// ========================================
+
+function showCoinPanel(type){
+
+    coinGraph.classList.remove(
+        "active"
+    );
+
+    coinConv.classList.remove(
+        "active"
+    );
+
+    coinHistory.classList.remove(
+        "active"
+    );
+
+    if(type==="graph"){
+
+        coinGraph.classList.add(
+            "active"
+        );
+
+    }
+
+    if(type==="conv"){
+
+        coinConv.classList.add(
+            "active"
+        );
+
+    }
+
+    if(type==="history"){
+
+        coinHistory.classList.add(
+            "active"
+        );
+
+    }
+
+}
+
+// ========================================
+// コイントス
+// ========================================
+
+function coinMulti(count){
+
+    const anim =
+    document.getElementById(
+        "coinAnim"
+    );
+
+    anim.classList.add(
+        "coin-spin"
+    );
+
+    let frame = 0;
+
+    const timer =
+    setInterval(()=>{
+
+        anim.innerHTML =
+        Math.random()>0.5
+        ? "🪙"
+        : "⭕";
+
+        frame++;
+
+        if(frame>15){
+
+            clearInterval(
+                timer
+            );
+
+            anim.classList.remove(
+                "coin-spin"
+            );
+
+            runCoin(count);
+
+        }
+
+    },50);
+
+}
+
+function runCoin(count){
+
+    for(let i=0;i<count;i++){
+
+        const result =
+        Math.random()>0.5
+        ? "表"
+        : "裏";
+
+        coinResults.push(
+            result
+        );
+
+    }
+
+    updateCoinStats();
+    updateCoinHistory();
+
+}
+
+function updateCoinStats(){
+
+    const heads =
+    coinResults.filter(
+        x=>x==="表"
+    ).length;
+
+    const tails =
+    coinResults.filter(
+        x=>x==="裏"
+    ).length;
+
+    const total =
+    heads+tails;
+
+    const headRate =
+    total>0
+    ?
+    (
+        heads/
+        total*
+        100
+    ).toFixed(2)
+    :
+    "0.00";
+
+    const tailRate =
+    total>0
+    ?
+    (
+        tails/
+        total*
+        100
+    ).toFixed(2)
+    :
+    "0.00";
+
+    coinResult.innerText =
+    coinResults[
+        coinResults.length-1
+    ] || "-";
+
+    coinStats.innerHTML =
+
+    `
+    <div class="stat">
+    表<br>${heads}
+    </div>
+
+    <div class="stat">
+    裏<br>${tails}
+    </div>
+
+    <div class="stat">
+    表率<br>${headRate}%
+    </div>
+
+    <div class="stat">
+    裏率<br>${tailRate}%
+    </div>
+    `;
+
+}
+function resetCoin(){
+
+    coinResults = [];
+
+    coinResult.innerText = "-";
+
+    coinStats.innerHTML =
+    "<div class='stat'>リセット済み</div>";
+
+    coinHistoryArea.innerHTML =
+    "";
+
+    drawCoinChart();
+
+    drawCoinConvergence();
+
+}
+
+
+// ========================================
+// コイン履歴
+// ========================================
+
+function updateCoinHistory(){
+
+    let html =
+    "<table>";
+
+    html +=
+
+    "<tr>" +
+
+    "<th>No</th>" +
+
+    "<th>結果</th>" +
+
+    "</tr>";
+
+    coinResults.forEach(
+        (r,index)=>{
+
+        html +=
+
+        "<tr>" +
+
+        "<td>" +
+        (index+1) +
+        "</td>" +
+
+        "<td>" +
+        r +
+        "</td>" +
+
+        "</tr>";
+
+    });
+
+    html +=
+    "</table>";
+
+    coinHistoryArea.innerHTML =
+    html;
+
+}
+
+// ========================================
+// CSV保存
+// ========================================
+
+function exportCoinCSV(){
+
+    let csv =
+    "No,Result\n";
+
+    coinResults.forEach(
+        (r,index)=>{
+
+        csv +=
+
+        (index+1)+
+        ","+
+        r+
+        "\n";
+
+    });
+
+    const blob =
+    new Blob(
+        [csv],
+        {
+            type:
+            "text/csv"
+        }
+    );
+
+    const a =
+    document
+    .createElement("a");
+
+    a.href =
+    URL.createObjectURL(
+        blob
+    );
+
+    a.download =
+    "coin.csv";
+
+    a.click();
+
+}
+
+// ========================================
+// サイコロ
+// ========================================
+
+function diceMulti(count){
+
+    const diceImg =
+    document.getElementById(
+        "diceImg"
+    );
+
+    diceImg.classList.add(
+        "dice-shake"
+    );
+
+    let frame = 0;
+
+    const timer =
+    setInterval(()=>{
+
+        const randomFace =
+
+        Math.floor(
+            Math.random()*6
+        ) + 1;
+
+        diceImg.src =
+
+        "dice" +
+        randomFace +
+        ".png";
+
+        frame++;
+
+        if(frame > 20){
+
+            clearInterval(
+                timer
+            );
+
+            diceImg.classList.remove(
+                "dice-shake"
+            );
+
+            runDice(count);
+
+        }
+
+    },50);
+
+}
+function runDice(count){
+
+    for(let i=0;i<count;i++){
+
+        const value =
+
+        Math.floor(
+            Math.random()*6
+        )+1;
+
+        diceResults.push(
+            value
+        );
+    }
+
+    updateDiceStats();
+    updateDiceHistory();
+const lastDice =
+diceResults[
+    diceResults.length - 1
+];
+
+document
+.getElementById(
+    "diceImg"
+)
+.src =
+"dice" +
+lastDice +
+".png";
+
+}
+
+function updateDiceStats(){
+
+    diceResult.innerText =
+
+    diceResults[
+        diceResults.length-1
+    ] || "-";
+
+    let count =
+
+    [0,0,0,0,0,0];
+
+    diceResults.forEach(v=>{
+
+        count[v-1]++;
+
+    });
+
+    let html="";
+
+    for(
+        let i=0;
+        i<6;
+        i++
+    ){
+
+        const rate =
+
+        diceResults.length
+
+        ?
+
+        (
+            count[i]
+            /
+            diceResults.length
+            *
+            100
+        ).toFixed(2)
+
+        :
+
+        "0.00";
+
+        html +=
+
+        `
+        <div class="stat">
+        ${i+1}<br>
+        ${rate}%
+        </div>
+        `;
+
+    }
+
+    diceStats.innerHTML =
+    html;
+
+}
+
+function updateDiceHistory(){
+
+    let html =
+    "<table>";
+
+    html +=
+
+    "<tr>" +
+
+    "<th>No</th>" +
+
+    "<th>出目</th>" +
+
+    "</tr>";
+
+    diceResults.forEach(
+        (v,index)=>{
+
+        html +=
+
+        "<tr>" +
+
+        "<td>" +
+        (index+1) +
+        "</td>" +
+
+        "<td>" +
+        v +
+        "</td>" +
+
+        "</tr>";
+
+    });
+
+    html +=
+    "</table>";
+
+    diceHistoryArea.innerHTML =
+    html;
+
+}
+function resetDice(){
+
+    diceResults = [];
+
+    diceResult.innerText = "-";
+
+    diceStats.innerHTML =
+    "<div class='stat'>リセット済み</div>";
+
+    diceHistoryArea.innerHTML =
+    "";
+
+    drawDiceChart();
+
+}
+
+// ========================================
+// コイン円グラフ
+// ========================================
+
+function drawCoinChart(){
+
+    const canvas =
+    document.getElementById(
+        "coinChart"
+    );
+
+    const ctx =
+    canvas.getContext("2d");
+
+    ctx.clearRect(
+        0,
+        0,
+        canvas.width,
+        canvas.height
+    );
+
+    const heads =
+    coinResults.filter(
+        x=>x==="表"
+    ).length;
+
+    const tails =
+    coinResults.filter(
+        x=>x==="裏"
+    ).length;
+
+    const total =
+    heads + tails;
+
+    if(total===0){
+        return;
+    }
+
+    const angle =
+    heads / total *
+    Math.PI * 2;
+
+    ctx.beginPath();
+    ctx.moveTo(250,150);
+
+    ctx.fillStyle =
+    "#2196f3";
+
+    ctx.arc(
+        250,
+        150,
+        100,
+        0,
+        angle
+    );
+
+    ctx.fill();
+
+    ctx.beginPath();
+    ctx.moveTo(250,150);
+
+    ctx.fillStyle =
+    "#ef5350";
+
+    ctx.arc(
+        250,
+        150,
+        100,
+        angle,
+        Math.PI*2
+    );
+
+    ctx.fill();
+
+}
+
+// ========================================
+// コイン収束グラフ
+// ========================================
+
+function drawCoinConvergence(){
+
+    const canvas =
+    document.getElementById(
+        "coinConvChart"
+    );
+
+    const ctx =
+    canvas.getContext("2d");
+
+    ctx.clearRect(
+        0,
+        0,
+        canvas.width,
+        canvas.height
+    );
+
+    if(
+        coinResults.length < 2
+    ){
+        return;
+    }
+
+    let heads = 0;
+
+    ctx.beginPath();
+
+    ctx.strokeStyle =
+    "green";
+
+    coinResults.forEach(
+        (value,index)=>{
+
+            if(value==="表"){
+                heads++;
+            }
+
+            const rate =
+            heads /
+            (index+1);
+
+            const x =
+            (
+                index
+                /
+                (
+                    coinResults.length-1
+                )
+            )
+            *
+            canvas.width;
+
+            const y =
+            canvas.height -
+            rate *
+            canvas.height;
+
+            if(index===0){
+
+                ctx.moveTo(
+                    x,
+                    y
+                );
+
+            }else{
+
+                ctx.lineTo(
+                    x,
+                    y
+                );
+
+            }
+
+        });
+
+    ctx.stroke();
+
+}
+
+// ========================================
+// サイコロ棒グラフ
+// ========================================
+
+function drawDiceChart(){
+
+    const canvas =
+    document.getElementById(
+        "diceChart"
+    );
+
+    const ctx =
+    canvas.getContext("2d");
+
+    ctx.clearRect(
+        0,
+        0,
+        canvas.width,
+        canvas.height
+    );
+
+    let count =
+    [0,0,0,0,0,0];
+
+    diceResults.forEach(v=>{
+
+        count[v-1]++;
+
+    });
+
+    const total =
+    diceResults.length;
+
+    for(
+        let i=0;
+        i<6;
+        i++
+    ){
+
+        const height =
+        count[i] * 10;
+
+        ctx.fillStyle =
+        "#4caf50";
+
+        ctx.fillRect(
+            40 + i*90,
+            260 - height,
+            60,
+            height
+        );
+
+        const rate =
+        total
+        ?
+        (
+            count[i]
+            /
+            total
+            *
+            100
+        ).toFixed(1)
+        :
+        "0.0";
+
+        ctx.fillStyle =
+        "black";
+
+        ctx.fillText(
+            i+1,
+            65+i*90,
+            285
+        );
+
+        ctx.fillText(
+            rate + "%",
+            45+i*90,
+            240-height
+        );
+
+    }
+
+}
+
+// ========================================
+// コイン処理へグラフ追加
+// ========================================
+
+const originalCoinStats =
+updateCoinStats;
+
+updateCoinStats = function(){
+
+    originalCoinStats();
+
+    drawCoinChart();
+    drawCoinConvergence();
+
+}
+
+// ========================================
+// サイコロ処理へグラフ追加
+// ========================================
+
+const originalDiceStats =
+updateDiceStats;
+
+updateDiceStats = function(){
+
+    originalDiceStats();
+
+    drawDiceChart();
+
+}
+
+// ========================================
+// ルーレット（工事中）
+// ========================================
+
+function spinRoulette(){
+
+    let count = 0;
+
+    const timer =
+    setInterval(()=>{
+
+        rouletteAnim.innerHTML =
+        ["A","B","C"]
+        [
+            Math.floor(
+                Math.random()*3
+            )
+        ];
+
+        count++;
+
+        if(count>20){
+
+            clearInterval(
+                timer
+            );
+
+            finishRoulette();
+
+        }
+
+    },50);
+
+}
+
+function finishRoulette(){
+
+    const r =
+    Math.random();
+
+    let result;
+
+    if(r<0.20){
+
+        result="A";
+
+    }
+    else if(r<0.50){
+
+        result="B";
+
+    }
+    else{
+
+        result="C";
+
+    }
+
+    rouletteResults.push(
+        result
+    );
+
+    rouletteResult.innerText =
+    result;
+
+    rouletteHistory.innerHTML =
+    rouletteResults
+    .slice()
+    .reverse()
+    .join("<br>");
+
+}
+
+function resetRoulette(){
+
+    rouletteResults = [];
+
+    rouletteResult.innerText = "-";
+
+    rouletteHistory.innerHTML =
+    "";
+
+}
+
+// ========================================
+// ガチャ（工事中）
+// ========================================
+
+function gachaDraw(){
+
+    const r =
+    Math.random()*100;
+
+    let result;
+    let css;
+
+    if(r<1){
+
+        result="SSR";
+        css="ssr";
+
+    }
+    else if(r<10){
+
+        result="SR";
+        css="sr";
+
+    }
+    else{
+
+        result="R";
+        css="r";
+
+    }
+
+    gachaResults.push(
+        result
+    );
+
+    gachaResult.innerHTML =
+
+    `<span class="${css}">
+        ${result}
+     </span>`;
+
+    let historyHtml = "";
+
+    [...gachaResults]
+    .reverse()
+    .forEach(v=>{
+
+        let c="r";
+
+        if(v==="SR")
+        c="sr";
+
+        if(v==="SSR")
+        c="ssr";
+
+        historyHtml +=
+
+        `<div class="${c}">
+            ${v}
+         </div>`;
+
+    });
+
+    gachaHistory.innerHTML =
+    historyHtml;
+
+}
+
+function resetGacha(){
+
+    gachaResults = [];
+
+    gachaResult.innerHTML = "-";
+
+    gachaHistory.innerHTML = "";
+
+}
+
+// ========================================
+// 初期化
+// ========================================
+
+updateCoinStats();
+updateDiceStats();
+
+showCoinPanel(
+    "graph"
+);
+
+</script>
+
+</body>
+</html>
+
